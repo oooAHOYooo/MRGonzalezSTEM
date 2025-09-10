@@ -608,6 +608,19 @@ def create_sample_data():
     db.session.commit()
     print("Sample data created successfully!")
 
+def find_available_port(start_port=5000, max_attempts=10):
+    """Find an available port starting from start_port"""
+    import socket
+    
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('', port))
+                return port
+        except OSError:
+            continue
+    return None
+
 if __name__ == '__main__':
     # Ensure upload directory exists
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -617,6 +630,17 @@ if __name__ == '__main__':
         db.create_all()
         create_sample_data()
     
+    # Find available port
+    start_port = int(os.environ.get('PORT', 5000))
+    port = find_available_port(start_port)
+    
+    if port is None:
+        print(f"Error: No available ports found starting from {start_port}")
+        exit(1)
+    
+    if port != start_port:
+        print(f"Port {start_port} is in use. Using port {port} instead.")
+    
     # Run the app
-    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting Flask app on port {port}")
     app.run(debug=os.environ.get('FLASK_ENV') == 'development', host='0.0.0.0', port=port)
