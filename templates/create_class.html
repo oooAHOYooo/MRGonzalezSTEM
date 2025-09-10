@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Create Class - Barnum STEM Portfolio{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-plus me-2"></i>Create New Class
+                </h1>
+                <p class="mb-0">Set up a new STEM class for your students.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('manage_classes') }}"
+                    class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Classes
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Create Class Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <form method="POST">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label for="class_name"
+                                        class="form-label fw-bold">Class Name
+                                        *</label>
+                                    <input type="text" class="form-control"
+                                        id="class_name" name="class_name"
+                                        required
+                                        placeholder="e.g., 3rd Grade Digital Designers">
+                                    <div class="form-text">A descriptive name
+                                        for your class</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="teacher_first_name"
+                                        class="form-label fw-bold">Teacher First
+                                        Name *</label>
+                                    <input type="text" class="form-control"
+                                        id="teacher_first_name"
+                                        name="teacher_first_name" required
+                                        placeholder="e.g., Ms. Johnson">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="grade_level"
+                                        class="form-label fw-bold">Grade Level
+                                        *</label>
+                                    <select class="form-select" id="grade_level"
+                                        name="grade_level" required>
+                                        <option value>Select Grade
+                                            Level</option>
+                                        <option
+                                            value="Kindergarten">Kindergarten</option>
+                                        <option value="1st Grade">1st
+                                            Grade</option>
+                                        <option value="2nd Grade">2nd
+                                            Grade</option>
+                                        <option value="3rd Grade">3rd
+                                            Grade</option>
+                                        <option value="4th Grade">4th
+                                            Grade</option>
+                                        <option value="5th Grade">5th
+                                            Grade</option>
+                                        <option value="6th Grade">6th
+                                            Grade</option>
+                                        <option value="7th Grade">7th
+                                            Grade</option>
+                                        <option value="8th Grade">8th
+                                            Grade</option>
+                                        <option value="High School">High
+                                            School</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="tinkercad_class_link"
+                                        class="form-label fw-bold">Tinkercad
+                                        Class Link</label>
+                                    <input type="url" class="form-control"
+                                        id="tinkercad_class_link"
+                                        name="tinkercad_class_link"
+                                        placeholder="https://www.tinkercad.com/classrooms/...">
+                                    <div class="form-text">Optional: Link to
+                                        your Tinkercad classroom</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="description"
+                                        class="form-label fw-bold">Class
+                                        Description</label>
+                                    <textarea class="form-control"
+                                        id="description" name="description"
+                                        rows="4"
+                                        placeholder="Describe what students will learn in this class..."></textarea>
+                                    <div class="form-text">Optional: Provide
+                                        details about the class focus and
+                                        goals</div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-5">
+                                <div class="col-12">
+                                    <div class="d-flex gap-3">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-lg">
+                                            <i
+                                                class="fas fa-save me-2"></i>Create
+                                            Class
+                                        </button>
+                                        <a
+                                            href="{{ url_for('manage_classes') }}"
+                                            class="btn btn-outline-secondary btn-lg">
+                                            <i
+                                                class="fas fa-times me-2"></i>Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Help Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0">
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-lightbulb me-2"></i>Need Help?
+                        </h5>
+                        <p class="text-muted mb-4">
+                            Here are some tips for creating effective STEM
+                            classes:
+                        </p>
+                        <div class="row text-start">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Use
+                                        descriptive class names</li>
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Include
+                                        grade-appropriate content</li>
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Set
+                                        up Tinkercad classrooms for 3D
+                                        design</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Write
+                                        clear descriptions</li>
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Consider
+                                        student skill levels</li>
+                                    <li class="mb-2"><i
+                                            class="fas fa-check text-success me-2"></i>Plan
+                                        for quarterly progression</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

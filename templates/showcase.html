@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+
+{% block title %}Project Showcase - Barnum STEM Portfolio{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-th-large me-3"></i>Project Showcase
+                </h1>
+                <p class="lead">
+                    Explore amazing student projects organized by quarter and
+                    subject area.
+                    Each project represents a unique learning journey and
+                    creative expression.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Quarters Navigation -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <ul class="nav nav-pills justify-content-center"
+                    id="quarterTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="q1-tab"
+                            data-bs-toggle="pill" data-bs-target="#q1"
+                            type="button" role="tab">
+                            <i class="fas fa-cube me-2"></i>Q1: 3D Design
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="q2-tab"
+                            data-bs-toggle="pill" data-bs-target="#q2"
+                            type="button" role="tab">
+                            <i class="fas fa-gamepad me-2"></i>Q2: Game
+                            Development
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="q3-tab"
+                            data-bs-toggle="pill" data-bs-target="#q3"
+                            type="button" role="tab">
+                            <i class="fas fa-vr-cardboard me-2"></i>Q3: Unreal
+                            Engine
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="q4-tab"
+                            data-bs-toggle="pill" data-bs-target="#q4"
+                            type="button" role="tab">
+                            <i class="fas fa-robot me-2"></i>Q4: Robotics
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Projects by Quarter -->
+<section class="py-5">
+    <div class="container">
+        <div class="tab-content" id="quarterTabsContent">
+            {% for quarter_key, quarter_data in quarters.items() %}
+            <div
+                class="tab-pane fade {% if quarter_key == 'Q1' %}show active{% endif %}"
+                id="{{ quarter_key.lower() }}" role="tabpanel">
+                <div class="row mb-4">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h2 class="display-6 fw-bold mb-3">
+                            {% if quarter_key == 'Q1' %}
+                            <i class="fas fa-cube text-primary me-2"></i>
+                            {% elif quarter_key == 'Q2' %}
+                            <i class="fas fa-gamepad text-success me-2"></i>
+                            {% elif quarter_key == 'Q3' %}
+                            <i class="fas fa-vr-cardboard text-info me-2"></i>
+                            {% else %}
+                            <i class="fas fa-robot text-warning me-2"></i>
+                            {% endif %}
+                            {{ quarter_data.name }}
+                        </h2>
+                        <p class="lead text-muted">
+                            {% if quarter_key == 'Q1' %}
+                            Students explore 3D design principles using
+                            Tinkercad, creating architectural models and
+                            engineering solutions.
+                            {% elif quarter_key == 'Q2' %}
+                            Interactive game development using Scratch, focusing
+                            on programming logic and creative storytelling.
+                            {% elif quarter_key == 'Q3' %}
+                            Advanced 3D environments and interactive experiences
+                            using Unreal Engine.
+                            {% else %}
+                            Hands-on robotics projects combining engineering,
+                            programming, and problem-solving.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% if quarter_data.projects %}
+                <div class="row g-4">
+                    {% for project in quarter_data.projects %}
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 shadow-sm project-card">
+                            <div class="card-body d-flex flex-column">
+                                <div
+                                    class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="badge bg-primary">{{
+                                        project.quarter }}</span>
+                                    <span class="badge bg-secondary">{{
+                                        project.project_type }}</span>
+                                </div>
+
+                                <h5 class="card-title">{{ project.title }}</h5>
+                                <p class="card-text text-muted flex-grow-1">
+                                    {{ project.description[:120] }}{% if
+                                    project.description|length > 120 %}...{%
+                                    endif %}
+                                </p>
+
+                                {% if project.skills_used %}
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold">Skills
+                                        Used:</small>
+                                    <div class="mt-1">
+                                        {% for skill in
+                                        project.skills_used.split(',') %}
+                                        <span
+                                            class="badge bg-light text-dark me-1 mb-1">{{
+                                            skill.strip() }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <div class="mt-auto">
+                                    <div
+                                        class="d-flex justify-content-between align-items-center mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i>{{
+                                            project.creator.first_name }} {{
+                                            project.creator.last_name }}
+                                        </small>
+                                        <small class="text-muted">{{
+                                            project.grade_level }}</small>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        {% if project.tinkercad_link %}
+                                        <a href="{{ project.tinkercad_link }}"
+                                            target="_blank"
+                                            class="btn btn-primary">
+                                            <i
+                                                class="fas fa-external-link-alt me-1"></i>View
+                                            on Tinkercad
+                                        </a>
+                                        {% elif project.scratch_link %}
+                                        <a href="{{ project.scratch_link }}"
+                                            target="_blank"
+                                            class="btn btn-success">
+                                            <i
+                                                class="fas fa-external-link-alt me-1"></i>Play
+                                            on Scratch
+                                        </a>
+                                        {% elif project.project_url %}
+                                        <a href="{{ project.project_url }}"
+                                            target="_blank"
+                                            class="btn btn-info">
+                                            <i
+                                                class="fas fa-external-link-alt me-1"></i>View
+                                            Project
+                                        </a>
+                                        {% endif %}
+
+                                        {% if project.learning_goals_met %}
+                                        <button
+                                            class="btn btn-outline-secondary btn-sm"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#goals-{{ project.id }}">
+                                            <i
+                                                class="fas fa-target me-1"></i>Learning
+                                            Goals
+                                        </button>
+                                        <div class="collapse mt-2"
+                                            id="goals-{{ project.id }}">
+                                            <div
+                                                class="card card-body bg-light">
+                                                <small class="text-muted">{{
+                                                    project.learning_goals_met
+                                                    }}</small>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        {% if quarter_key == 'Q1' %}
+                        <i class="fas fa-cube fa-4x text-muted"></i>
+                        {% elif quarter_key == 'Q2' %}
+                        <i class="fas fa-gamepad fa-4x text-muted"></i>
+                        {% elif quarter_key == 'Q3' %}
+                        <i class="fas fa-vr-cardboard fa-4x text-muted"></i>
+                        {% else %}
+                        <i class="fas fa-robot fa-4x text-muted"></i>
+                        {% endif %}
+                    </div>
+                    <h4 class="text-muted">No projects yet for {{
+                        quarter_data.name }}</h4>
+                    <p class="text-muted">Check back soon for amazing student
+                        creations!</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h3 class="fw-bold mb-4">Project Statistics</h3>
+                <div class="row">
+                    {% for quarter_key, quarter_data in quarters.items() %}
+                    <div class="col-md-3 col-6 mb-4">
+                        <div class="text-center">
+                            <div class="display-6 fw-bold text-primary">{{
+                                quarter_data.projects|length }}</div>
+                            <div class="text-muted">{{ quarter_data.name
+                                }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Add smooth scrolling and enhanced interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Add animation to project cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe all project cards
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}

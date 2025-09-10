@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Barnum STEM Portfolio{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-user-graduate me-2"></i>My Dashboard
+                </h1>
+                <p class="mb-0">Welcome back, {{ current_user.first_name }}!
+                    Here's your learning progress.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('create_project') }}" class="btn btn-light">
+                    <i class="fas fa-plus me-1"></i>New Project
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Overview -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i
+                            class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <div class="display-6 fw-bold text-success">{{
+                            completed_lessons }}</div>
+                        <div class="text-muted">Lessons Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-book fa-2x text-primary mb-3"></i>
+                        <div class="display-6 fw-bold text-primary">{{
+                            total_lessons }}</div>
+                        <div class="text-muted">Total Lessons</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-2x text-info mb-3"></i>
+                        <div class="display-6 fw-bold text-info">{{
+                            avg_completion }}%</div>
+                        <div class="text-muted">Avg. Completion</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i
+                            class="fas fa-project-diagram fa-2x text-warning mb-3"></i>
+                        <div class="display-6 fw-bold text-warning">{{
+                            projects|length }}</div>
+                        <div class="text-muted">My Projects</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- My Projects -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div
+                        class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-project-diagram me-2"></i>My
+                            Projects
+                        </h5>
+                        <a href="{{ url_for('create_project') }}"
+                            class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>New Project
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if projects %}
+                        <div class="row g-3">
+                            {% for project in projects %}
+                            <div class="col-md-6">
+                                <div class="card border h-100">
+                                    <div class="card-body">
+                                        <div
+                                            class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-primary">{{
+                                                project.quarter }}</span>
+                                            <span class="badge bg-secondary">{{
+                                                project.project_type }}</span>
+                                        </div>
+                                        <h6 class="card-title">{{ project.title
+                                            }}</h6>
+                                        <p class="card-text text-muted small">{{
+                                            project.description[:80] }}{% if
+                                            project.description|length > 80
+                                            %}...{% endif %}</p>
+
+                                        <div
+                                            class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{
+                                                project.created_at.strftime('%m/%d/%Y')
+                                                }}</small>
+                                            <div>
+                                                {% if project.is_public %}
+                                                <span
+                                                    class="badge bg-success">Public</span>
+                                                {% else %}
+                                                <span
+                                                    class="badge bg-warning">Private</span>
+                                                {% endif %}
+                                                {% if project.is_featured %}
+                                                <span
+                                                    class="badge bg-warning">Featured</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        {% if project.tinkercad_link or
+                                        project.scratch_link or
+                                        project.project_url %}
+                                        <div class="mt-2">
+                                            {% if project.tinkercad_link %}
+                                            <a
+                                                href="{{ project.tinkercad_link }}"
+                                                target="_blank"
+                                                class="btn btn-outline-primary btn-sm">
+                                                <i
+                                                    class="fas fa-external-link-alt me-1"></i>View
+                                            </a>
+                                            {% elif project.scratch_link %}
+                                            <a href="{{ project.scratch_link }}"
+                                                target="_blank"
+                                                class="btn btn-outline-success btn-sm">
+                                                <i
+                                                    class="fas fa-external-link-alt me-1"></i>Play
+                                            </a>
+                                            {% elif project.project_url %}
+                                            <a href="{{ project.project_url }}"
+                                                target="_blank"
+                                                class="btn btn-outline-info btn-sm">
+                                                <i
+                                                    class="fas fa-external-link-alt me-1"></i>View
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i
+                                class="fas fa-project-diagram fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No projects yet</h5>
+                            <p class="text-muted">Start creating amazing
+                                projects to showcase your learning!</p>
+                            <a href="{{ url_for('create_project') }}"
+                                class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Create Your
+                                First Project
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Learning Progress -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-chart-line me-2"></i>Learning
+                            Progress
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if progress %}
+                        <div class="list-group list-group-flush">
+                            {% for prog in progress %}
+                            <div class="list-group-item border-0 px-0">
+                                <div
+                                    class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{
+                                            prog.lesson_plan.title }}</h6>
+                                        <p class="mb-1 text-muted small">{{
+                                            prog.lesson_plan.subject_area }} •
+                                            {{ prog.lesson_plan.quarter }}</p>
+
+                                        <div class="d-flex align-items-center">
+                                            <div
+                                                class="progress flex-grow-1 me-3"
+                                                style="height: 6px;">
+                                                <div
+                                                    class="progress-bar bg-{{ 'success' if prog.status == 'completed' else 'warning' if prog.status == 'in_progress' else 'secondary' }}"
+                                                    style="width: {{ prog.completion_percentage }}%"></div>
+                                            </div>
+                                            <small class="text-muted">{{
+                                                prog.completion_percentage
+                                                }}%</small>
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <span
+                                                class="badge bg-{{ 'success' if prog.status == 'completed' else 'warning' if prog.status == 'in_progress' else 'secondary' }}">
+                                                {{ prog.status.replace('_',
+                                                ' ').title() }}
+                                            </span>
+                                            {% if prog.skill_demonstration %}
+                                            <span class="badge bg-info">{{
+                                                prog.skill_demonstration.title()
+                                                }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{
+                                        prog.last_updated.strftime('%m/%d')
+                                        }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i
+                                class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No progress yet</h5>
+                            <p class="text-muted">Your learning progress will
+                                appear here as you work on lessons.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Achievements -->
+            <div class="col-lg-4">
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-bolt me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('create_project') }}"
+                                class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create New
+                                Project
+                            </a>
+                            <a href="{{ url_for('showcase') }}"
+                                class="btn btn-outline-primary">
+                                <i class="fas fa-th-large me-2"></i>View All
+                                Projects
+                            </a>
+                            <a href="{{ url_for('curriculum') }}"
+                                class="btn btn-outline-info">
+                                <i class="fas fa-graduation-cap me-2"></i>View
+                                Curriculum
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-trophy me-2"></i>Achievements
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-6 text-center">
+                                <i
+                                    class="fas fa-star fa-2x text-warning mb-2"></i>
+                                <div class="fw-bold">{{ projects|length }}</div>
+                                <small class="text-muted">Projects</small>
+                            </div>
+                            <div class="col-6 text-center">
+                                <i
+                                    class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                <div class="fw-bold">{{ completed_lessons
+                                    }}</div>
+                                <small class="text-muted">Completed</small>
+                            </div>
+                            <div class="col-6 text-center">
+                                <i
+                                    class="fas fa-cube fa-2x text-primary mb-2"></i>
+                                <div class="fw-bold">{{
+                                    projects|selectattr('project_type',
+                                    'equalto', 'Tinkercad')|list|length }}</div>
+                                <small class="text-muted">3D Designs</small>
+                            </div>
+                            <div class="col-6 text-center">
+                                <i
+                                    class="fas fa-gamepad fa-2x text-success mb-2"></i>
+                                <div class="fw-bold">{{
+                                    projects|selectattr('project_type',
+                                    'equalto', 'Scratch')|list|length }}</div>
+                                <small class="text-muted">Games</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade Level Info -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-graduation-cap me-2"></i>My Info
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Grade Level:</strong><br>
+                            <span class="badge bg-primary">{{
+                                current_user.grade_level or 'Not specified'
+                                }}</span>
+                        </div>
+
+                        {% if current_user.tinkercad_username %}
+                        <div class="mb-3">
+                            <strong>Tinkercad Username:</strong><br>
+                            <code>{{ current_user.tinkercad_username }}</code>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-0">
+                            <strong>Member Since:</strong><br>
+                            <small class="text-muted">{{
+                                current_user.created_at.strftime('%B %Y')
+                                }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

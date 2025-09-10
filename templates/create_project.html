@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+
+{% block title %}Create Project - Barnum STEM Portfolio{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-plus me-2"></i>Create New Project
+                </h1>
+                <p class="mb-0">Showcase your learning with an amazing
+                    project!</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a
+                    href="{{ url_for('student_dashboard' if current_user.role == 'student' else 'teacher_dashboard') }}"
+                    class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Create Project Form -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <form method="POST">
+                            <div class="row g-4">
+                                <!-- Basic Information -->
+                                <div class="col-12">
+                                    <h5 class="fw-bold text-primary mb-3">
+                                        <i
+                                            class="fas fa-info-circle me-2"></i>Project
+                                        Information
+                                    </h5>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="title"
+                                        class="form-label fw-bold">Project Title
+                                        *</label>
+                                    <input type="text" class="form-control"
+                                        id="title" name="title" required
+                                        placeholder="e.g., My Dream Treehouse">
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="description"
+                                        class="form-label fw-bold">Project
+                                        Description *</label>
+                                    <textarea class="form-control"
+                                        id="description" name="description"
+                                        rows="4" required
+                                        placeholder="Describe your project, what you learned, and what makes it special..."></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="project_type"
+                                        class="form-label fw-bold">Project Type
+                                        *</label>
+                                    <select class="form-select"
+                                        id="project_type" name="project_type"
+                                        required>
+                                        <option value>Select Type</option>
+                                        <option value="Tinkercad">Tinkercad (3D
+                                            Design)</option>
+                                        <option value="Scratch">Scratch (Game
+                                            Development)</option>
+                                        <option value="Unreal Engine">Unreal
+                                            Engine</option>
+                                        <option
+                                            value="Robotics">Robotics</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="quarter"
+                                        class="form-label fw-bold">Quarter
+                                        *</label>
+                                    <select class="form-select" id="quarter"
+                                        name="quarter" required>
+                                        <option value="Q1">Q1 - 3D Design &
+                                            Treehouses</option>
+                                        <option value="Q2">Q2 - Game
+                                            Development</option>
+                                        <option value="Q3">Q3 - Unreal
+                                            Engine</option>
+                                        <option value="Q4">Q4 -
+                                            Robotics</option>
+                                    </select>
+                                </div>
+
+                                {% if current_user.role != 'student' %}
+                                <div class="col-md-6">
+                                    <label for="grade_level"
+                                        class="form-label fw-bold">Grade
+                                        Level</label>
+                                    <select class="form-select" id="grade_level"
+                                        name="grade_level">
+                                        <option value>Select Grade
+                                            Level</option>
+                                        <option
+                                            value="Kindergarten">Kindergarten</option>
+                                        <option value="1st Grade">1st
+                                            Grade</option>
+                                        <option value="2nd Grade">2nd
+                                            Grade</option>
+                                        <option value="3rd Grade">3rd
+                                            Grade</option>
+                                        <option value="4th Grade">4th
+                                            Grade</option>
+                                        <option value="5th Grade">5th
+                                            Grade</option>
+                                        <option value="6th Grade">6th
+                                            Grade</option>
+                                        <option value="7th Grade">7th
+                                            Grade</option>
+                                        <option value="8th Grade">8th
+                                            Grade</option>
+                                        <option value="High School">High
+                                            School</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+
+                                <!-- Project Links -->
+                                <div class="col-12">
+                                    <h5 class="fw-bold text-primary mb-3 mt-4">
+                                        <i class="fas fa-link me-2"></i>Project
+                                        Links
+                                    </h5>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="tinkercad_link"
+                                        class="form-label fw-bold">Tinkercad
+                                        Link</label>
+                                    <input type="url" class="form-control"
+                                        id="tinkercad_link"
+                                        name="tinkercad_link"
+                                        placeholder="https://www.tinkercad.com/things/...">
+                                    <div class="form-text">For 3D design
+                                        projects</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="scratch_link"
+                                        class="form-label fw-bold">Scratch
+                                        Link</label>
+                                    <input type="url" class="form-control"
+                                        id="scratch_link" name="scratch_link"
+                                        placeholder="https://scratch.mit.edu/projects/...">
+                                    <div class="form-text">For game development
+                                        projects</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="project_url"
+                                        class="form-label fw-bold">Other Project
+                                        URL</label>
+                                    <input type="url" class="form-control"
+                                        id="project_url" name="project_url"
+                                        placeholder="https://...">
+                                    <div class="form-text">For other types of
+                                        projects or portfolios</div>
+                                </div>
+
+                                <!-- Learning Details -->
+                                <div class="col-12">
+                                    <h5 class="fw-bold text-primary mb-3 mt-4">
+                                        <i
+                                            class="fas fa-graduation-cap me-2"></i>Learning
+                                        Details
+                                    </h5>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="subject_areas"
+                                        class="form-label fw-bold">Subject
+                                        Areas</label>
+                                    <input type="text" class="form-control"
+                                        id="subject_areas" name="subject_areas"
+                                        placeholder="e.g., Engineering, Science, Art">
+                                    <div class="form-text">Comma-separated list
+                                        of subjects covered</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="skills_used"
+                                        class="form-label fw-bold">Skills
+                                        Used</label>
+                                    <textarea class="form-control"
+                                        id="skills_used" name="skills_used"
+                                        rows="3"
+                                        placeholder="List the skills and techniques you used in this project..."></textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="learning_goals_met"
+                                        class="form-label fw-bold">Learning
+                                        Goals Met</label>
+                                    <textarea class="form-control"
+                                        id="learning_goals_met"
+                                        name="learning_goals_met" rows="3"
+                                        placeholder="What learning objectives did this project help you achieve?"></textarea>
+                                </div>
+
+                                <!-- Sharing Settings -->
+                                <div class="col-12">
+                                    <h5 class="fw-bold text-primary mb-3 mt-4">
+                                        <i
+                                            class="fas fa-share-alt me-2"></i>Sharing
+                                        Settings
+                                    </h5>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                            type="checkbox" id="is_public"
+                                            name="is_public" value="1">
+                                        <label class="form-check-label fw-bold"
+                                            for="is_public">
+                                            Make this project public
+                                        </label>
+                                        <div class="form-text">Public projects
+                                            will be visible in the showcase to
+                                            everyone</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-5">
+                                <div class="col-12">
+                                    <div class="d-flex gap-3">
+                                        <button type="submit"
+                                            class="btn btn-primary btn-lg">
+                                            <i
+                                                class="fas fa-save me-2"></i>Create
+                                            Project
+                                        </button>
+                                        <a
+                                            href="{{ url_for('student_dashboard' if current_user.role == 'student' else 'teacher_dashboard') }}"
+                                            class="btn btn-outline-secondary btn-lg">
+                                            <i
+                                                class="fas fa-times me-2"></i>Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Examples -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0">
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold mb-3">
+                            <i class="fas fa-lightbulb me-2"></i>Project Ideas
+                            by Quarter
+                        </h5>
+                        <p class="text-muted mb-4">
+                            Need inspiration? Here are some project ideas for
+                            each quarter:
+                        </p>
+                        <div class="row text-start">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-primary">Q1 - 3D
+                                    Design</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Dream treehouse with multiple
+                                        levels</li>
+                                    <li>• Futuristic city with sustainable
+                                        features</li>
+                                    <li>• Custom phone case or holder</li>
+                                    <li>• Miniature garden with water
+                                        features</li>
+                                </ul>
+
+                                <h6 class="fw-bold text-success">Q2 - Game
+                                    Development</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Adventure quest with multiple
+                                        levels</li>
+                                    <li>• Educational math or science game</li>
+                                    <li>• Interactive story with choices</li>
+                                    <li>• Puzzle game with creative
+                                        solutions</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-info">Q3 - Unreal
+                                    Engine</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Immersive 3D environment</li>
+                                    <li>• Interactive museum or gallery</li>
+                                    <li>• Virtual reality experience</li>
+                                    <li>• Architectural visualization</li>
+                                </ul>
+
+                                <h6 class="fw-bold text-warning">Q4 -
+                                    Robotics</h6>
+                                <ul class="list-unstyled small text-muted">
+                                    <li>• Automated sorting machine</li>
+                                    <li>• Robot that solves a problem</li>
+                                    <li>• Interactive art installation</li>
+                                    <li>• Smart home automation</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Auto-populate grade level for students
+document.addEventListener('DOMContentLoaded', function() {
+    {% if current_user.role == 'student' and current_user.grade_level %}
+    // Grade level is already set for students, no need to show the field
+    {% endif %}
+    
+    // Update form based on project type selection
+    const projectTypeSelect = document.getElementById('project_type');
+    const tinkercadLink = document.getElementById('tinkercad_link');
+    const scratchLink = document.getElementById('scratch_link');
+    
+    projectTypeSelect.addEventListener('change', function() {
+        // Reset all link fields
+        tinkercadLink.value = '';
+        scratchLink.value = '';
+        
+        // Show relevant link field based on project type
+        if (this.value === 'Tinkercad') {
+            tinkercadLink.parentElement.style.display = 'block';
+            scratchLink.parentElement.style.display = 'none';
+        } else if (this.value === 'Scratch') {
+            tinkercadLink.parentElement.style.display = 'none';
+            scratchLink.parentElement.style.display = 'block';
+        } else {
+            tinkercadLink.parentElement.style.display = 'block';
+            scratchLink.parentElement.style.display = 'block';
+        }
+    });
+});
+</script>
+{% endblock %}

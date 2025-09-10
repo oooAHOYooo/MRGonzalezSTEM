@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block title %}Student Progress - Barnum STEM Portfolio{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="py-4 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-chart-bar me-2"></i>Student Progress
+                </h1>
+                <p class="mb-0">Track and monitor student learning progress
+                    across all classes.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <button class="btn btn-light" onclick="exportProgress()">
+                    <i class="fas fa-download me-1"></i>Export Data
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Overview -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                        <div class="display-6 fw-bold text-primary">{{
+                            progress_data|length }}</div>
+                        <div class="text-muted">Total Students</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i
+                            class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <div class="display-6 fw-bold text-success">
+                            {{ progress_data|sum(attribute='completed_lessons')
+                            }}
+                        </div>
+                        <div class="text-muted">Lessons Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-2x text-info mb-3"></i>
+                        <div class="display-6 fw-bold text-info">
+                            {{
+                            "%.1f"|format(progress_data|sum(attribute='avg_completion')
+                            / progress_data|length if progress_data else 0) }}%
+                        </div>
+                        <div class="text-muted">Avg. Completion</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clock fa-2x text-warning mb-3"></i>
+                        <div class="display-6 fw-bold text-warning">
+                            {{
+                            progress_data|selectattr('recent_activity')|list|length
+                            }}
+                        </div>
+                        <div class="text-muted">Active Students</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Student Progress Table -->
+<section class="py-5">
+    <div class="container">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas fa-table me-2"></i>Individual Student Progress
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if progress_data %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Grade Level</th>
+                                <th>Lessons Completed</th>
+                                <th>Avg. Completion</th>
+                                <th>Recent Activity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in progress_data %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle me-3">
+                                            {{ data.student.first_name[0] }}{{
+                                            data.student.last_name[0] if
+                                            data.student.last_name else '' }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{
+                                                data.student.first_name }} {{
+                                                data.student.last_name }}</div>
+                                            <small class="text-muted">{{
+                                                data.student.username }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{
+                                        data.student.grade_level or
+                                        'Not specified' }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2"
+                                            style="height: 8px;">
+                                            <div class="progress-bar"
+                                                style="width: {{ (data.completed_lessons / data.total_lessons * 100) if data.total_lessons > 0 else 0 }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{
+                                            data.completed_lessons }}/{{
+                                            data.total_lessons }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2"
+                                            style="height: 8px;">
+                                            <div
+                                                class="progress-bar bg-{{ 'success' if data.avg_completion >= 80 else 'warning' if data.avg_completion >= 60 else 'danger' }}"
+                                                style="width: {{ data.avg_completion }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{
+                                            data.avg_completion }}%</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if data.recent_activity %}
+                                    <small class="text-muted">{{
+                                        data.recent_activity.strftime('%m/%d %I:%M %p')
+                                        }}</small>
+                                    {% else %}
+                                    <small class="text-muted">No
+                                        activity</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary"
+                                            onclick="viewStudent({{ data.student.id }})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning"
+                                            onclick="updateProgress({{ data.student.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info"
+                                            onclick="sendMessage({{ data.student.id }})">
+                                            <i class="fas fa-message"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-bar fa-4x text-muted mb-4"></i>
+                    <h4 class="text-muted mb-3">No student progress data
+                        yet</h4>
+                    <p class="text-muted">Student progress will appear here as
+                        they work on lessons and projects.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Insights -->
+{% if progress_data %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="fw-bold text-center mb-4">Progress Insights</h3>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i
+                                    class="fas fa-star fa-2x text-warning mb-3"></i>
+                                <h5 class="fw-bold">Top Performers</h5>
+                                <p class="text-muted">
+                                    {% set top_performers =
+                                    progress_data|sort(attribute='avg_completion',
+                                    reverse=True)|list %}
+                                    {% if top_performers %}
+                                    {{ top_performers[0].student.first_name }}
+                                    {{ top_performers[0].student.last_name }}
+                                    ({{ top_performers[0].avg_completion }}%)
+                                    {% else %}
+                                    No data available
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i
+                                    class="fas fa-heart fa-2x text-danger mb-3"></i>
+                                <h5 class="fw-bold">Need Support</h5>
+                                <p class="text-muted">
+                                    {% set need_support =
+                                    progress_data|selectattr('avg_completion',
+                                    'lt', 60)|list %}
+                                    {% if need_support %}
+                                    {{ need_support|length }} student(s) need
+                                    additional support
+                                    {% else %}
+                                    All students are performing well!
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #007bff, #28a745);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function viewStudent(studentId) {
+    // TODO: Implement view student details
+    alert('View student details functionality coming soon!');
+}
+
+function updateProgress(studentId) {
+    // TODO: Implement update progress
+    alert('Update progress functionality coming soon!');
+}
+
+function sendMessage(studentId) {
+    // TODO: Implement send message
+    alert('Send message functionality coming soon!');
+}
+
+function exportProgress() {
+    // TODO: Implement export functionality
+    alert('Export progress functionality coming soon!');
+}
+</script>
+{% endblock %}
