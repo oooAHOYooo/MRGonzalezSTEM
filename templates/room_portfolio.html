@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}{{ room.room_number }} - {{ room.room_name }} Portfolio{%
+endblock %}
+
+{% block extra_head %}
+<style>
+    .room-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .room-title {
+        font-size: 3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .room-subtitle {
+        font-size: 1.5rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+    
+    .room-info {
+        display: flex;
+        gap: 2rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .info-item {
+        text-align: center;
+    }
+    
+    .info-number {
+        font-size: 2rem;
+        font-weight: bold;
+        display: block;
+    }
+    
+    .info-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .student-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    @media (max-width: 768px) {
+        .student-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .student-grid {
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+    }
+    
+    .student-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    @media (max-width: 768px) {
+        .student-card {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .student-card {
+            padding: 0.75rem;
+        }
+    }
+    
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .student-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .student-avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    .student-code {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .student-name {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .student-grade {
+        color: #999;
+        font-size: 0.8rem;
+    }
+    
+    .portfolio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .portfolio-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .portfolio-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .portfolio-item {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .portfolio-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .portfolio-image {
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+        position: relative;
+    }
+    
+    .portfolio-content {
+        padding: 1.5rem;
+    }
+    
+    .portfolio-title {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .portfolio-student {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .portfolio-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .likes {
+        color: #e74c3c;
+    }
+    
+    .views {
+        color: #3498db;
+    }
+    
+    .quarter-badge {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+    
+    .back-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Room Header -->
+<div class="room-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <a href="{{ url_for('portfolio_home') }}" class="back-button">
+                    <i class="fas fa-arrow-left"></i> Back to All Rooms
+                </a>
+                <h1 class="room-title">{{ room.room_number }}</h1>
+                <h2 class="room-subtitle">{{ room.room_name }}</h2>
+                <p class="mb-0">{{ room.description }}</p>
+
+                <div class="room-info">
+                    <div class="info-item">
+                        <span class="info-number">{{ students|length }}</span>
+                        <span class="info-label">Students</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-number">{{ room.grade_levels }}</span>
+                        <span class="info-label">Grade Level</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-number">{{ room.capacity }}</span>
+                        <span class="info-label">Capacity</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Students Grid -->
+    <div class="mb-5">
+        <h2 class="section-title">
+            <i class="fas fa-users me-2"></i>Students in {{ room.room_number }}
+        </h2>
+        <p class="text-muted mb-4">Click on any student to view their individual
+            portfolio</p>
+
+        <div class="student-grid">
+            {% for student in students %}
+            <a href="{{ url_for('student_portfolio', student_id=student.id) }}"
+                class="student-card">
+                <div class="student-avatar"
+                    style="background-color: {{ student.avatar_color }};">
+                    {{ student.greek_code.split('_')[0][0] }}
+                </div>
+                <div class="student-code">{{ student.greek_code }}</div>
+                <div class="student-name">{{ student.first_name }} {{
+                    student.last_name }}</div>
+                <div class="student-grade">{{ student.grade_level }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Portfolio Items -->
+    {% if recent_items %}
+    <div class="mb-5">
+        <h2 class="section-title">
+            <i class="fas fa-images me-2"></i>Recent Projects
+        </h2>
+        <p class="text-muted mb-4">Latest work from students in this room</p>
+
+        <div class="portfolio-grid">
+            {% for item in recent_items %}
+            <a href="{{ url_for('portfolio_item_detail', item_id=item.id) }}"
+                class="portfolio-item">
+                <div class="portfolio-image">
+                    <i
+                        class="fas fa-{{ 'cube' if item.project_type == 'Tinkercad' else 'gamepad' if item.project_type == 'Scratch' else 'robot' if item.project_type == 'Robotics' else 'image' }}"></i>
+                    <div class="quarter-badge">{{ item.quarter }}</div>
+                </div>
+                <div class="portfolio-content">
+                    <div class="portfolio-title">{{ item.title }}</div>
+                    <div class="portfolio-student">{{ item.student.greek_code }}
+                        - {{ item.student.first_name }} {{
+                        item.student.last_name }}</div>
+                    <div class="portfolio-stats">
+                        <span class="likes"><i class="fas fa-heart me-1"></i>{{
+                            item.likes_count }}</span>
+                        <span class="views"><i class="fas fa-eye me-1"></i>{{
+                            item.views_count }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Room Statistics -->
+    <div class="row mb-5">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-images fa-3x text-primary mb-3"></i>
+                    <h4 class="card-title">Total Projects</h4>
+                    <h2 class="text-primary">{{ recent_items|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                    <h4 class="card-title">Total Likes</h4>
+                    <h2 class="text-danger">{{
+                        recent_items|sum(attribute='likes_count') }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="fas fa-eye fa-3x text-info mb-3"></i>
+                    <h4 class="card-title">Total Views</h4>
+                    <h2 class="text-info">{{
+                        recent_items|sum(attribute='views_count') }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add hover effects to student cards
+    document.querySelectorAll('.student-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.05)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+    
+    // Add hover effects to portfolio items
+    document.querySelectorAll('.portfolio-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+</script>
+{% endblock %}

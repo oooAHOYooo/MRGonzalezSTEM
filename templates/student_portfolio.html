@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.greek_code }} - {{ student.first_name }} {{
+student.last_name }} Portfolio{% endblock %}
+
+{% block extra_head %}
+<style>
+    .student-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .student-avatar-large {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+        .student-avatar-large {
+            width: 100px;
+            height: 100px;
+            font-size: 2rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .student-avatar-large {
+            width: 80px;
+            height: 80px;
+            font-size: 1.5rem;
+        }
+    }
+    
+    .student-code-large {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+    
+    .student-name-large {
+        font-size: 1.5rem;
+        opacity: 0.9;
+        margin-bottom: 1rem;
+    }
+    
+    .student-bio {
+        font-size: 1.1rem;
+        opacity: 0.8;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .student-stats {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+        .student-stats {
+            gap: 2rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .student-stats {
+            gap: 1.5rem;
+        }
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        display: block;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
+    
+    .portfolio-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .portfolio-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .portfolio-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+    
+    .portfolio-item {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .portfolio-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .portfolio-image {
+        height: 250px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 4rem;
+        position: relative;
+    }
+    
+    .portfolio-content {
+        padding: 1.5rem;
+    }
+    
+    .portfolio-title {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .portfolio-description {
+        color: #666;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    
+    .portfolio-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .quarter-badge {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .project-type {
+        color: #666;
+        font-weight: 500;
+    }
+    
+    .portfolio-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #666;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .likes {
+        color: #e74c3c;
+        cursor: pointer;
+        transition: color 0.3s ease;
+    }
+    
+    .likes:hover {
+        color: #c0392b;
+    }
+    
+    .views {
+        color: #3498db;
+    }
+    
+    .back-button {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #666;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #ddd;
+    }
+    
+    .skills-section {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+    }
+    
+    .skill-tag {
+        background: #667eea;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin: 0.25rem;
+        display: inline-block;
+    }
+    
+    .content-type-icon {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.5rem;
+        border-radius: 50%;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Student Header -->
+<div class="student-header">
+    <div class="container">
+        <div class="text-center">
+            <a
+                href="{{ url_for('room_portfolio', room_number=student.room.room_number) }}"
+                class="back-button">
+                <i class="fas fa-arrow-left"></i> Back to {{
+                student.room.room_number }}
+            </a>
+
+            <div class="student-avatar-large"
+                style="background-color: {{ student.avatar_color }};">
+                {{ student.greek_code.split('_')[0][0] }}
+            </div>
+
+            <h1 class="student-code-large">{{ student.greek_code }}</h1>
+            <h2 class="student-name-large">{{ student.first_name }} {{
+                student.last_name }}</h2>
+
+            {% if student.bio %}
+            <p class="student-bio">{{ student.bio }}</p>
+            {% endif %}
+
+            <div class="student-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_items }}</span>
+                    <span class="stat-label">Projects</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_likes }}</span>
+                    <span class="stat-label">Likes</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ total_views }}</span>
+                    <span class="stat-label">Views</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ student.grade_level }}</span>
+                    <span class="stat-label">Grade</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Skills Section -->
+    {% if portfolio_items %}
+    <div class="skills-section">
+        <h3 class="fw-bold mb-3">
+            <i class="fas fa-tools me-2"></i>Skills Demonstrated
+        </h3>
+        <div class="text-center">
+            {% set all_skills = [] %}
+            {% for item in portfolio_items %}
+            {% if item.skills_used %}
+            {% for skill in item.skills_used.split(',') %}
+            {% if skill.strip() not in all_skills %}
+            {% set _ = all_skills.append(skill.strip()) %}
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+
+            {% for skill in all_skills[:10] %}
+            <span class="skill-tag">{{ skill }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Portfolio Grid -->
+    {% if portfolio_items %}
+    <div class="mb-5">
+        <h2 class="fw-bold mb-4">
+            <i class="fas fa-images me-2"></i>Portfolio Projects
+        </h2>
+
+        <div class="portfolio-grid">
+            {% for item in portfolio_items %}
+            <div class="portfolio-item">
+                <a
+                    href="{{ url_for('portfolio_item_detail', item_id=item.id) }}"
+                    style="text-decoration: none; color: inherit;">
+                    <div class="portfolio-image">
+                        <i
+                            class="fas fa-{{ 'cube' if item.project_type == 'Tinkercad' else 'gamepad' if item.project_type == 'Scratch' else 'robot' if item.project_type == 'Robotics' else 'code' if item.project_type == 'Programming' else 'image' }}"></i>
+                        <div class="content-type-icon">
+                            <i
+                                class="fas fa-{{ 'image' if item.content_type == 'image' else 'video' if item.content_type == 'video' else 'file' if item.content_type == 'document' else 'cube' if item.content_type == '3d_model' else 'code' }}"></i>
+                        </div>
+                        <div class="quarter-badge"
+                            style="position: absolute; top: 15px; right: 15px;">{{
+                            item.quarter }}</div>
+                    </div>
+                </a>
+                <div class="portfolio-content">
+                    <div class="portfolio-title">{{ item.title }}</div>
+                    {% if item.description %}
+                    <div class="portfolio-description">{{ item.description[:100]
+                        }}{% if item.description|length > 100 %}...{% endif
+                        %}</div>
+                    {% endif %}
+
+                    <div class="portfolio-meta">
+                        <span class="project-type">{{ item.project_type
+                            }}</span>
+                        <span class="quarter-badge">{{ item.quarter }}</span>
+                    </div>
+
+                    <div class="portfolio-stats">
+                        <span class="likes" onclick="likeItem({{ item.id }})">
+                            <i class="fas fa-heart me-1"></i>{{ item.likes_count
+                            }}
+                        </span>
+                        <span class="views">
+                            <i class="fas fa-eye me-1"></i>{{ item.views_count
+                            }}
+                        </span>
+                        <small class="text-muted">{{
+                            item.created_at.strftime('%b %d, %Y') }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-images"></i>
+        <h3>No Projects Yet</h3>
+        <p>This student hasn't shared any projects yet. Check back later!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Like functionality
+    function likeItem(itemId) {
+        fetch(`/api/portfolio/like/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update the like count in the UI
+                const likeElement = event.target.closest('.likes');
+                const icon = likeElement.querySelector('i');
+                const count = likeElement.querySelector('i').nextSibling;
+                
+                // Add animation
+                icon.style.color = '#e74c3c';
+                icon.style.transform = 'scale(1.2)';
+                
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1)';
+                }, 200);
+                
+                // Update count
+                count.textContent = data.likes_count;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+    // Add hover effects to portfolio items
+    document.querySelectorAll('.portfolio-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.02)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}Student Portfolios - Barnum STEM{% endblock %}
+
+{% block extra_head %}
+<style>
+    .portfolio-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .portfolio-hero {
+            padding: 2rem 0;
+        }
+        
+        .portfolio-hero h1 {
+            font-size: 2.5rem;
+        }
+        
+        .portfolio-hero .lead {
+            font-size: 1rem;
+        }
+    }
+    
+    .room-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    
+    .room-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .room-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .room-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+    
+    .room-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+    
+    .room-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+    
+    @media (max-width: 768px) {
+        .room-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    }
+    
+    .featured-projects {
+        background: #f8f9fa;
+        padding: 3rem 0;
+        margin-top: 3rem;
+    }
+    
+    .project-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .project-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .project-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .project-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .project-image {
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+    }
+    
+    .project-content {
+        padding: 1.5rem;
+    }
+    
+    .project-title {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #333;
+    }
+    
+    .project-student {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .project-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+    
+    .likes {
+        color: #e74c3c;
+    }
+    
+    .views {
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Portfolio Hero Section -->
+<div class="portfolio-hero">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">
+            <i class="fas fa-images me-3"></i>Student Portfolios
+        </h1>
+        <p class="lead mb-4">Explore amazing STEM projects from our talented
+            students</p>
+        <p class="mb-0">Organized by classroom • Greek codenames •
+            Instagram-style showcase</p>
+    </div>
+</div>
+
+<!-- Rooms Grid -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold mb-3">Choose a Classroom</h2>
+        <p class="lead text-muted">Each room contains 25 students with unique
+            Greek codenames</p>
+    </div>
+
+    <div class="room-grid">
+        {% for room in rooms %}
+        <a href="{{ url_for('room_portfolio', room_number=room.room_number) }}"
+            class="room-card">
+            <div class="room-number">{{ room.room_number }}</div>
+            <div class="room-name">{{ room.room_name }}</div>
+            <p class="text-muted mb-3">{{ room.description }}</p>
+
+            <div class="room-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ room.students|length }}</div>
+                    <div class="stat-label">Students</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ room.grade_levels }}</div>
+                    <div class="stat-label">Grade Level</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ room.capacity }}</div>
+                    <div class="stat-label">Capacity</div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Featured Projects Section -->
+<div class="featured-projects">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-3">Featured Projects</h2>
+            <p class="lead text-muted">Some of the most popular student
+                creations</p>
+        </div>
+
+        <div class="project-grid">
+            <!-- Sample featured projects -->
+            <div class="project-card">
+                <div class="project-image">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="project-content">
+                    <div class="project-title">Dream Treehouse Design</div>
+                    <div class="project-student">Alpha_001 - Emma K</div>
+                    <div class="project-stats">
+                        <span class="likes"><i
+                                class="fas fa-heart me-1"></i>15</span>
+                        <span class="views"><i
+                                class="fas fa-eye me-1"></i>42</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-image">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="project-content">
+                    <div class="project-title">Space Adventure Quest</div>
+                    <div class="project-student">Beta_002 - Marcus T</div>
+                    <div class="project-stats">
+                        <span class="likes"><i
+                                class="fas fa-heart me-1"></i>23</span>
+                        <span class="views"><i
+                                class="fas fa-eye me-1"></i>67</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-image">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="project-content">
+                    <div class="project-title">Robot Arm Design</div>
+                    <div class="project-student">Gamma_003 - Sophia L</div>
+                    <div class="project-stats">
+                        <span class="likes"><i
+                                class="fas fa-heart me-1"></i>8</span>
+                        <span class="views"><i
+                                class="fas fa-eye me-1"></i>31</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-image">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="project-content">
+                    <div class="project-title">Digital Art Gallery</div>
+                    <div class="project-student">Delta_004 - Jayden M</div>
+                    <div class="project-stats">
+                        <span class="likes"><i
+                                class="fas fa-heart me-1"></i>12</span>
+                        <span class="views"><i
+                                class="fas fa-eye me-1"></i>28</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-lg-6">
+            <h2 class="display-5 fw-bold mb-4">How Our Portfolio System
+                Works</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 50px; height: 50px;">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="fw-bold">Room-Based Organization</h5>
+                            <p class="text-muted">Students are organized by
+                                classroom (RM224, RM225, etc.) with 25 students
+                                per room.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 50px; height: 50px;">
+                                <i class="fas fa-greek"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="fw-bold">Greek Codenames</h5>
+                            <p class="text-muted">Each student has a unique
+                                Greek codename like Alpha_001, Beta_002,
+                                etc.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="bg-info text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 50px; height: 50px;">
+                                <i class="fas fa-images"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="fw-bold">Instagram-Style Display</h5>
+                            <p class="text-muted">Portfolio items are displayed
+                                in an Instagram-like grid with likes and
+                                views.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="d-flex align-items-start">
+                        <div class="flex-shrink-0">
+                            <div
+                                class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 50px; height: 50px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="fw-bold">Individual Profiles</h5>
+                            <p class="text-muted">Each student has their own
+                                portfolio page showcasing all their work.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="text-center">
+                <div class="bg-light rounded-3 p-5">
+                    <i class="fas fa-rocket fa-5x text-primary mb-4"></i>
+                    <h4 class="fw-bold mb-3">Ready to Explore?</h4>
+                    <p class="text-muted mb-4">Click on any classroom above to
+                        start exploring student portfolios!</p>
+                    <a href="#rooms" class="btn btn-primary btn-lg">
+                        <i class="fas fa-arrow-down me-2"></i>View Classrooms
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Smooth scroll to rooms section
+    document.querySelector('a[href="#rooms"]')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector('.room-grid').scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+    
+    // Add hover effects to room cards (only on non-touch devices)
+    if (window.matchMedia('(hover: hover)').matches) {
+        document.querySelectorAll('.room-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    }
+    
+    // Mobile-specific improvements
+    if (window.innerWidth <= 768) {
+        // Add touch feedback for mobile
+        document.querySelectorAll('.room-card').forEach(card => {
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            card.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    }
+    
+    // Prevent zoom on double tap for iOS
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+</script>
+{% endblock %}

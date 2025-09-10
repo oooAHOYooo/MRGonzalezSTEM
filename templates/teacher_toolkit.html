@@ -1,0 +1,677 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Toolkit - Barnum STEM Portfolio{% endblock %}
+
+{% block extra_head %}
+<style>
+    .toolkit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+    }
+    
+    .timer-display {
+        font-size: 4rem;
+        font-weight: bold;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 1rem;
+        margin: 1rem 0;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .timer-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .timer-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 100px;
+    }
+    
+    .timer-btn.start {
+        background: #28a745;
+        color: white;
+    }
+    
+    .timer-btn.pause {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .timer-btn.reset {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .timer-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .title-of-day {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .title-input {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-align: center;
+        border-radius: 10px;
+        padding: 1rem;
+        width: 100%;
+        margin: 1rem 0;
+    }
+    
+    .title-input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .toolkit-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .toolkit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .quick-tools {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .tool-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+    
+    .tool-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .tool-btn i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .classroom-status {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .status-item:last-child {
+        border-bottom: none;
+    }
+    
+    .noise-meter {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .noise-level {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 1rem 0;
+    }
+    
+    .noise-bar {
+        background: rgba(255, 255, 255, 0.3);
+        height: 20px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+    
+    .noise-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+        transition: width 0.3s ease;
+        border-radius: 10px;
+    }
+    
+    .timer-presets {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+    }
+    
+    .preset-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .preset-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+    
+    .timer-warning {
+        background: #ffc107;
+        color: #212529;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        margin: 1rem 0;
+        display: none;
+    }
+    
+    .timer-alert {
+        background: #dc3545;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        margin: 1rem 0;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Teacher Toolkit Header -->
+<div class="toolkit-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-4 fw-bold mb-2">
+                    <i class="fas fa-tools me-3"></i>Teacher Toolkit
+                </h1>
+                <p class="lead mb-0">Your all-in-one classroom management
+                    center</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="d-flex gap-2 justify-content-md-end">
+                    <a href="{{ url_for('teacher_dashboard') }}"
+                        class="btn btn-light btn-lg">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard
+                    </a>
+                    <a href="{{ url_for('manage_classes') }}"
+                        class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-chalkboard me-2"></i>Classes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Title of the Day -->
+    <div class="title-of-day">
+        <h2 class="mb-3">
+            <i class="fas fa-star me-2"></i>Title of the Day
+        </h2>
+        <input type="text" id="titleOfDay" class="title-input"
+            placeholder="Enter today's lesson title..."
+            value="Welcome to STEM Class!">
+        <div class="d-flex justify-content-center gap-2">
+            <button class="btn btn-light" onclick="saveTitle()">
+                <i class="fas fa-save me-1"></i>Save Title
+            </button>
+            <button class="btn btn-outline-light" onclick="clearTitle()">
+                <i class="fas fa-eraser me-1"></i>Clear
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Timer Section -->
+        <div class="col-lg-6">
+            <div class="toolkit-card">
+                <h3 class="fw-bold mb-3">
+                    <i class="fas fa-clock me-2"></i>Classroom Timer
+                </h3>
+
+                <div class="timer-display" id="timerDisplay">00:00</div>
+
+                <div class="timer-controls">
+                    <button class="timer-btn start" id="startBtn"
+                        onclick="startTimer()">
+                        <i class="fas fa-play me-1"></i>Start
+                    </button>
+                    <button class="timer-btn pause" id="pauseBtn"
+                        onclick="pauseTimer()" style="display: none;">
+                        <i class="fas fa-pause me-1"></i>Pause
+                    </button>
+                    <button class="timer-btn reset" onclick="resetTimer()">
+                        <i class="fas fa-stop me-1"></i>Reset
+                    </button>
+                </div>
+
+                <div class="timer-presets">
+                    <button class="preset-btn" onclick="setTimer(5)">5
+                        min</button>
+                    <button class="preset-btn" onclick="setTimer(10)">10
+                        min</button>
+                    <button class="preset-btn" onclick="setTimer(15)">15
+                        min</button>
+                    <button class="preset-btn" onclick="setTimer(20)">20
+                        min</button>
+                    <button class="preset-btn" onclick="setTimer(30)">30
+                        min</button>
+                    <button class="preset-btn" onclick="setTimer(45)">45
+                        min</button>
+                </div>
+
+                <div class="timer-warning" id="timerWarning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>5 minutes
+                    remaining!
+                </div>
+
+                <div class="timer-alert" id="timerAlert">
+                    <i class="fas fa-bell me-1"></i>Time's up!
+                </div>
+            </div>
+        </div>
+
+        <!-- Classroom Status -->
+        <div class="col-lg-6">
+            <div class="classroom-status">
+                <h3 class="fw-bold mb-3">
+                    <i class="fas fa-chalkboard me-2"></i>Classroom Status
+                </h3>
+
+                <div class="status-item">
+                    <span><i class="fas fa-users me-2"></i>Active
+                        Students</span>
+                    <span class="badge bg-light text-dark fs-6">{{
+                        total_students }}</span>
+                </div>
+
+                <div class="status-item">
+                    <span><i class="fas fa-chalkboard me-2"></i>Classes
+                        Today</span>
+                    <span class="badge bg-light text-dark fs-6">{{ total_classes
+                        }}</span>
+                </div>
+
+                <div class="status-item">
+                    <span><i class="fas fa-book me-2"></i>Lessons Planned</span>
+                    <span class="badge bg-light text-dark fs-6">{{ total_lessons
+                        }}</span>
+                </div>
+
+                <div class="status-item">
+                    <span><i class="fas fa-project-diagram me-2"></i>Projects in
+                        Progress</span>
+                    <span class="badge bg-light text-dark fs-6">{{
+                        total_projects }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tools -->
+    <div class="toolkit-card">
+        <h3 class="fw-bold mb-3">
+            <i class="fas fa-bolt me-2"></i>Quick Tools
+        </h3>
+
+        <div class="quick-tools">
+            <button class="tool-btn" onclick="randomStudent()">
+                <i class="fas fa-random"></i>
+                <div>Random Student</div>
+            </button>
+
+            <button class="tool-btn" onclick="groupStudents()">
+                <i class="fas fa-users"></i>
+                <div>Group Students</div>
+            </button>
+
+            <button class="tool-btn" onclick="startBreak()">
+                <i class="fas fa-coffee"></i>
+                <div>Break Time</div>
+            </button>
+
+            <button class="tool-btn" onclick="quietSignal()">
+                <i class="fas fa-hand-paper"></i>
+                <div>Quiet Signal</div>
+            </button>
+
+            <button class="tool-btn" onclick="showInstructions()">
+                <i class="fas fa-list-ol"></i>
+                <div>Show Instructions</div>
+            </button>
+
+            <button class="tool-btn" onclick="takeAttendance()">
+                <i class="fas fa-clipboard-check"></i>
+                <div>Take Attendance</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Noise Meter -->
+    <div class="noise-meter">
+        <h3 class="fw-bold mb-3">
+            <i class="fas fa-volume-up me-2"></i>Noise Level Monitor
+        </h3>
+
+        <div class="noise-level" id="noiseLevel">Quiet</div>
+
+        <div class="noise-bar">
+            <div class="noise-fill" id="noiseFill" style="width: 20%"></div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <small>Quiet</small>
+            <small>Moderate</small>
+            <small>Loud</small>
+        </div>
+
+        <button class="btn btn-light mt-3" onclick="startNoiseMonitoring()">
+            <i class="fas fa-microphone me-1"></i>Start Monitoring
+        </button>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="toolkit-card">
+        <h3 class="fw-bold mb-3">
+            <i class="fas fa-history me-2"></i>Recent Activity
+        </h3>
+
+        {% if recent_progress %}
+        <div class="list-group list-group-flush">
+            {% for progress in recent_progress[:5] %}
+            <div class="list-group-item border-0 px-0">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="mb-1">{{ progress.student.first_name }} {{
+                            progress.student.last_name }}</h6>
+                        <p class="mb-1 text-muted">{{ progress.lesson_plan.title
+                            }}</p>
+                        <small class="text-muted">
+                            <span
+                                class="badge bg-{{ 'success' if progress.status == 'completed' else 'warning' if progress.status == 'in_progress' else 'secondary' }}">
+                                {{ progress.status.replace('_', ' ').title() }}
+                            </span>
+                            • {{ progress.completion_percentage }}% complete
+                        </small>
+                    </div>
+                    <small class="text-muted">{{
+                        progress.last_updated.strftime('%m/%d %I:%M %p')
+                        }}</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No recent activity</h5>
+            <p class="text-muted">Student progress will appear here as they work
+                on projects.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Timer functionality
+    let timerInterval;
+    let timeLeft = 0;
+    let isRunning = false;
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function updateDisplay() {
+        document.getElementById('timerDisplay').textContent = formatTime(timeLeft);
+        
+        // Show warnings
+        if (timeLeft === 300) { // 5 minutes
+            document.getElementById('timerWarning').style.display = 'block';
+            playNotificationSound();
+        }
+        
+        if (timeLeft === 0) {
+            document.getElementById('timerAlert').style.display = 'block';
+            playNotificationSound();
+            stopTimer();
+        }
+    }
+
+    function startTimer() {
+        if (!isRunning && timeLeft > 0) {
+            isRunning = true;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+            }, 1000);
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+        }
+    }
+
+    function pauseTimer() {
+        if (isRunning) {
+            isRunning = false;
+            clearInterval(timerInterval);
+            
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+        }
+    }
+
+    function stopTimer() {
+        isRunning = false;
+        clearInterval(timerInterval);
+        
+        document.getElementById('startBtn').style.display = 'inline-block';
+        document.getElementById('pauseBtn').style.display = 'none';
+    }
+
+    function resetTimer() {
+        stopTimer();
+        timeLeft = 0;
+        updateDisplay();
+        document.getElementById('timerWarning').style.display = 'none';
+        document.getElementById('timerAlert').style.display = 'none';
+    }
+
+    function setTimer(minutes) {
+        timeLeft = minutes * 60;
+        updateDisplay();
+        document.getElementById('timerWarning').style.display = 'none';
+        document.getElementById('timerAlert').style.display = 'none';
+    }
+
+    // Title of the day functionality
+    function saveTitle() {
+        const title = document.getElementById('titleOfDay').value;
+        localStorage.setItem('titleOfDay', title);
+        showNotification('Title saved!', 'success');
+    }
+
+    function clearTitle() {
+        document.getElementById('titleOfDay').value = '';
+        localStorage.removeItem('titleOfDay');
+        showNotification('Title cleared!', 'info');
+    }
+
+    // Load saved title on page load
+    window.addEventListener('load', function() {
+        const savedTitle = localStorage.getItem('titleOfDay');
+        if (savedTitle) {
+            document.getElementById('titleOfDay').value = savedTitle;
+        }
+    });
+
+    // Quick tools functionality
+    function randomStudent() {
+        const students = [
+            'Emma K', 'Marcus T', 'Sophia L', 'Jayden M', 'Alex R', 'Maya S'
+        ];
+        const randomStudent = students[Math.floor(Math.random() * students.length)];
+        showNotification(`Random student: ${randomStudent}`, 'info');
+    }
+
+    function groupStudents() {
+        const students = [
+            'Emma K', 'Marcus T', 'Sophia L', 'Jayden M', 'Alex R', 'Maya S'
+        ];
+        const shuffled = [...students].sort(() => 0.5 - Math.random());
+        const groups = [];
+        for (let i = 0; i < shuffled.length; i += 2) {
+            groups.push(shuffled.slice(i, i + 2));
+        }
+        
+        let message = 'Student groups:\n';
+        groups.forEach((group, index) => {
+            message += `Group ${index + 1}: ${group.join(', ')}\n`;
+        });
+        
+        alert(message);
+    }
+
+    function startBreak() {
+        setTimer(5); // 5 minute break
+        startTimer();
+        showNotification('Break time started!', 'success');
+    }
+
+    function quietSignal() {
+        // Simulate quiet signal
+        document.body.style.animation = 'pulse 0.5s ease-in-out 3';
+        showNotification('Quiet signal activated!', 'warning');
+    }
+
+    function showInstructions() {
+        const instructions = prompt('Enter instructions for students:');
+        if (instructions) {
+            showNotification('Instructions displayed!', 'success');
+        }
+    }
+
+    function takeAttendance() {
+        showNotification('Attendance feature coming soon!', 'info');
+    }
+
+    // Noise monitoring (simulated)
+    function startNoiseMonitoring() {
+        showNotification('Noise monitoring started!', 'success');
+        // Simulate noise level changes
+        setInterval(() => {
+            const levels = ['Quiet', 'Moderate', 'Loud'];
+            const randomLevel = levels[Math.floor(Math.random() * levels.length)];
+            const widths = [20, 50, 80];
+            const randomWidth = widths[Math.floor(Math.random() * widths.length)];
+            
+            document.getElementById('noiseLevel').textContent = randomLevel;
+            document.getElementById('noiseFill').style.width = randomWidth + '%';
+        }, 2000);
+    }
+
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Sound notification
+    function playNotificationSound() {
+        // Create a simple beep sound
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    // Add pulse animation for quiet signal
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

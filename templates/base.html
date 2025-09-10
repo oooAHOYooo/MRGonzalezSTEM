@@ -2,7 +2,11 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <title>{% block title %}Barnum STEM Portfolio{% endblock %}</title>
 
         <!-- Bootstrap CSS -->
@@ -40,6 +44,11 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link"
+                                href="{{ url_for('portfolio_home') }}">
+                                <i class="fas fa-images me-1"></i>Portfolio</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
                                 href="{{ url_for('showcase') }}">Showcase</a>
                         </li>
                         <li class="nav-item">
@@ -62,6 +71,10 @@
                                     class="fas fa-chalkboard-teacher me-1"></i>Teacher
                             </a>
                             <ul class="dropdown-menu">
+                                <li><a class="dropdown-item"
+                                        href="{{ url_for('teacher_toolkit') }}">
+                                        <i class="fas fa-tools me-2"></i>Teacher
+                                        Toolkit</a></li>
                                 <li><a class="dropdown-item"
                                         href="{{ url_for('teacher_dashboard') }}">Dashboard</a></li>
                                 <li><a class="dropdown-item"

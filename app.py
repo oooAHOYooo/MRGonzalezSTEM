@@ -189,6 +189,95 @@ class TeacherReflection(db.Model):
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class Room(db.Model):
+    """STEM Classrooms organized by room numbers"""
+    id = db.Column(db.Integer, primary_key=True)
+    room_number = db.Column(db.String(10), unique=True, nullable=False)  # RM224, RM225, etc.
+    room_name = db.Column(db.String(100), nullable=False)  # "Digital Design Lab", etc.
+    description = db.Column(db.Text)
+    capacity = db.Column(db.Integer, default=25)
+    grade_levels = db.Column(db.String(100))  # "3rd-5th Grade"
+    
+    # Room settings
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    students = db.relationship('StudentCodenames', backref='room', lazy=True, cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<Room {self.room_number}>'
+
+class StudentCodenames(db.Model):
+    """Student codenames organized by room with Greek letter system"""
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Optional link to user account
+    
+    # Codenames
+    greek_code = db.Column(db.String(20), nullable=False)  # Xi_002, Alpha_015, etc.
+    display_name = db.Column(db.String(100), nullable=False)  # "Xi_002 - Emma K"
+    
+    # Student info
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    grade_level = db.Column(db.String(20))
+    
+    # Portfolio settings
+    bio = db.Column(db.Text)
+    avatar_color = db.Column(db.String(7), default='#007bff')  # Hex color for avatar
+    is_public = db.Column(db.Boolean, default=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    last_active = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    portfolio_items = db.relationship('PortfolioItem', backref='student', lazy=True, cascade='all, delete-orphan')
+    
+    def __repr__(self):
+        return f'<StudentCodenames {self.greek_code}>'
+
+class PortfolioItem(db.Model):
+    """Individual portfolio items for each student"""
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer, db.ForeignKey('student_codenames.id'), nullable=False)
+    
+    # Content
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    content_type = db.Column(db.String(50), nullable=False)  # image, video, 3d_model, code, document
+    
+    # Media files
+    image_path = db.Column(db.String(500))
+    video_path = db.Column(db.String(500))
+    file_path = db.Column(db.String(500))
+    thumbnail_path = db.Column(db.String(500))
+    
+    # Project details
+    project_type = db.Column(db.String(50))  # Tinkercad, Scratch, Unreal, Robotics, etc.
+    quarter = db.Column(db.String(10))  # Q1, Q2, Q3, Q4
+    subject_areas = db.Column(db.String(200))  # comma-separated
+    skills_used = db.Column(db.Text)
+    
+    # Links
+    external_link = db.Column(db.String(500))
+    tinkercad_link = db.Column(db.String(500))
+    scratch_link = db.Column(db.String(500))
+    
+    # Portfolio settings
+    is_featured = db.Column(db.Boolean, default=False)
+    is_public = db.Column(db.Boolean, default=True)
+    likes_count = db.Column(db.Integer, default=0)
+    views_count = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<PortfolioItem {self.title}>'
+
 # Login manager
 @login_manager.user_loader
 def load_user(user_id):
@@ -313,6 +402,27 @@ def student_dashboard():
                          avg_completion=round(avg_completion, 1))
 
 # Teacher routes
+@app.route('/teacher-toolkit')
+@login_required
+@teacher_required
+def teacher_toolkit():
+    """Teacher toolkit with timer, title of day, and classroom management tools"""
+    # Overview stats
+    total_students = User.query.filter_by(role='student').count()
+    total_classes = STEMClass.query.count()
+    total_lessons = LessonPlan.query.count()
+    total_projects = Project.query.count()
+    
+    # Recent activity
+    recent_progress = StudentProgress.query.order_by(StudentProgress.last_updated.desc()).limit(10).all()
+    
+    return render_template('teacher_toolkit.html',
+                         total_students=total_students,
+                         total_classes=total_classes,
+                         total_lessons=total_lessons,
+                         total_projects=total_projects,
+                         recent_progress=recent_progress)
+
 @app.route('/teacher-dashboard')
 @login_required
 @teacher_required
@@ -510,6 +620,79 @@ def toggle_featured_project(project_id):
         'message': f'Project {"featured" if project.is_featured else "unfeatured"} successfully'
     })
 
+# Portfolio routes
+@app.route('/portfolio')
+def portfolio_home():
+    """Portfolio homepage showing all rooms"""
+    rooms = Room.query.filter_by(is_active=True).order_by(Room.room_number).all()
+    return render_template('portfolio_home.html', rooms=rooms)
+
+@app.route('/portfolio/room/<room_number>')
+def room_portfolio(room_number):
+    """Room-specific portfolio showing all students"""
+    room = Room.query.filter_by(room_number=room_number, is_active=True).first_or_404()
+    students = StudentCodenames.query.filter_by(room_id=room.id, is_public=True).order_by(StudentCodenames.greek_code).all()
+    
+    # Get recent portfolio items for this room
+    recent_items = db.session.query(PortfolioItem).join(StudentCodenames).filter(
+        StudentCodenames.room_id == room.id,
+        PortfolioItem.is_public == True
+    ).order_by(PortfolioItem.created_at.desc()).limit(12).all()
+    
+    return render_template('room_portfolio.html', room=room, students=students, recent_items=recent_items)
+
+@app.route('/portfolio/student/<int:student_id>')
+def student_portfolio(student_id):
+    """Individual student portfolio page"""
+    student = StudentCodenames.query.filter_by(id=student_id, is_public=True).first_or_404()
+    portfolio_items = PortfolioItem.query.filter_by(
+        student_id=student.id, 
+        is_public=True
+    ).order_by(PortfolioItem.created_at.desc()).all()
+    
+    # Get stats
+    total_items = len(portfolio_items)
+    total_likes = sum(item.likes_count for item in portfolio_items)
+    total_views = sum(item.views_count for item in portfolio_items)
+    
+    return render_template('student_portfolio.html', 
+                         student=student, 
+                         portfolio_items=portfolio_items,
+                         total_items=total_items,
+                         total_likes=total_likes,
+                         total_views=total_views)
+
+@app.route('/portfolio/item/<int:item_id>')
+def portfolio_item_detail(item_id):
+    """Individual portfolio item detail page"""
+    item = PortfolioItem.query.filter_by(id=item_id, is_public=True).first_or_404()
+    
+    # Increment view count
+    item.views_count += 1
+    db.session.commit()
+    
+    # Get related items from same student
+    related_items = PortfolioItem.query.filter(
+        PortfolioItem.student_id == item.student_id,
+        PortfolioItem.id != item.id,
+        PortfolioItem.is_public == True
+    ).order_by(PortfolioItem.created_at.desc()).limit(6).all()
+    
+    return render_template('portfolio_item_detail.html', item=item, related_items=related_items)
+
+@app.route('/api/portfolio/like/<int:item_id>', methods=['POST'])
+def like_portfolio_item(item_id):
+    """Like a portfolio item"""
+    item = PortfolioItem.query.get_or_404(item_id)
+    item.likes_count += 1
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'likes_count': item.likes_count,
+        'message': 'Item liked!'
+    })
+
 # Initialize database and sample data
 def create_sample_data():
     """Create sample data for development"""
@@ -605,20 +788,165 @@ def create_sample_data():
                 )
                 db.session.add(project)
     
+    # Create sample rooms
+    if Room.query.count() == 0:
+        rooms_data = [
+            {
+                'room_number': 'RM224',
+                'room_name': 'Digital Design Lab',
+                'description': '3D Design and Tinkercad workspace',
+                'capacity': 25,
+                'grade_levels': '3rd-5th Grade'
+            },
+            {
+                'room_number': 'RM225',
+                'room_name': 'Game Development Studio',
+                'description': 'Scratch and programming lab',
+                'capacity': 25,
+                'grade_levels': '4th-6th Grade'
+            },
+            {
+                'room_number': 'RM324',
+                'room_name': 'Unreal Engine Lab',
+                'description': 'Advanced 3D game development',
+                'capacity': 20,
+                'grade_levels': '5th-8th Grade'
+            },
+            {
+                'room_number': 'RM325',
+                'room_name': 'Robotics Workshop',
+                'description': 'Robotics and engineering lab',
+                'capacity': 25,
+                'grade_levels': '4th-6th Grade'
+            },
+            {
+                'room_number': 'RM142',
+                'room_name': 'Innovation Hub',
+                'description': 'Mixed STEM projects and collaboration space',
+                'capacity': 30,
+                'grade_levels': '3rd-8th Grade'
+            }
+        ]
+        
+        for room_data in rooms_data:
+            room = Room(**room_data)
+            db.session.add(room)
+        db.session.flush()
+    
+    # Create sample student codenames
+    if StudentCodenames.query.count() == 0:
+        greek_letters = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta', 
+                        'Iota', 'Kappa', 'Lambda', 'Mu', 'Nu', 'Xi', 'Omicron', 'Pi', 'Rho', 
+                        'Sigma', 'Tau', 'Upsilon', 'Phi', 'Chi', 'Psi', 'Omega']
+        
+        student_names = [
+            'Emma K', 'Marcus T', 'Sophia L', 'Jayden M', 'Alex R', 'Maya S',
+            'Noah P', 'Isabella C', 'Liam D', 'Ava W', 'William B', 'Mia H',
+            'James F', 'Charlotte G', 'Benjamin J', 'Amelia K', 'Lucas M', 'Harper N',
+            'Henry O', 'Evelyn P', 'Alexander Q', 'Abigail R', 'Mason S', 'Emily T',
+            'Michael U'
+        ]
+        
+        rooms = Room.query.all()
+        for room in rooms:
+            for i in range(min(25, len(student_names))):
+                greek_letter = greek_letters[i % len(greek_letters)]
+                code_number = f"{i+1:03d}"
+                greek_code = f"{greek_letter}_{code_number}"
+                
+                student_name = student_names[i % len(student_names)]
+                first_name, last_name = student_name.split(' ', 1)
+                
+                # Generate avatar colors
+                colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', 
+                         '#6f42c1', '#e83e8c', '#fd7e14', '#20c997', '#6c757d']
+                
+                student = StudentCodenames(
+                    room_id=room.id,
+                    greek_code=greek_code,
+                    display_name=f"{greek_code} - {student_name}",
+                    first_name=first_name,
+                    last_name=last_name,
+                    grade_level=room.grade_levels.split('-')[0].strip() if room.grade_levels else '3rd Grade',
+                    bio=f"STEM enthusiast from {room.room_name}",
+                    avatar_color=colors[i % len(colors)],
+                    is_public=True
+                )
+                db.session.add(student)
+        db.session.flush()
+    
+    # Create sample portfolio items
+    if PortfolioItem.query.count() == 0:
+        students = StudentCodenames.query.limit(10).all()
+        sample_items = [
+            {
+                'title': 'My First 3D House',
+                'description': 'Designed a cozy house with windows and a door using Tinkercad',
+                'content_type': 'image',
+                'project_type': 'Tinkercad',
+                'quarter': 'Q1',
+                'subject_areas': 'Engineering, Design',
+                'skills_used': '3D Design, Spatial Thinking',
+                'is_featured': True,
+                'likes_count': 15,
+                'views_count': 42
+            },
+            {
+                'title': 'Space Race Game',
+                'description': 'Created an exciting space racing game with obstacles and power-ups',
+                'content_type': 'video',
+                'project_type': 'Scratch',
+                'quarter': 'Q2',
+                'subject_areas': 'Programming, Game Design',
+                'skills_used': 'Logic, Problem Solving, Creativity',
+                'is_featured': True,
+                'likes_count': 23,
+                'views_count': 67
+            },
+            {
+                'title': 'Robot Arm Design',
+                'description': 'Engineered a robotic arm that can pick up and move objects',
+                'content_type': 'image',
+                'project_type': 'Robotics',
+                'quarter': 'Q4',
+                'subject_areas': 'Engineering, Robotics',
+                'skills_used': 'Mechanical Design, Programming',
+                'is_featured': False,
+                'likes_count': 8,
+                'views_count': 31
+            }
+        ]
+        
+        for student in students:
+            for i, item_data in enumerate(sample_items):
+                if i < 3:  # Each student gets 3 sample items
+                    item = PortfolioItem(
+                        student_id=student.id,
+                        **item_data
+                    )
+                    db.session.add(item)
+    
     db.session.commit()
     print("Sample data created successfully!")
 
-def find_available_port(start_port=5000, max_attempts=10):
+def find_available_port(start_port=5000, max_attempts=20):
     """Find an available port starting from start_port"""
     import socket
+    
+    print(f"🔍 Searching for available port starting from {start_port}...")
     
     for port in range(start_port, start_port + max_attempts):
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 s.bind(('', port))
+                print(f"✅ Found available port: {port}")
                 return port
-        except OSError:
+        except OSError as e:
+            print(f"❌ Port {port} is in use: {e}")
             continue
+    
+    print(f"⚠️  No available ports found in range {start_port}-{start_port + max_attempts - 1}")
     return None
 
 if __name__ == '__main__':
@@ -635,12 +963,25 @@ if __name__ == '__main__':
     port = find_available_port(start_port)
     
     if port is None:
-        print(f"Error: No available ports found starting from {start_port}")
+        print(f"❌ Error: No available ports found starting from {start_port}")
+        print("💡 Try closing other applications or restarting your system.")
         exit(1)
     
     if port != start_port:
-        print(f"Port {start_port} is in use. Using port {port} instead.")
+        print(f"⚠️  Port {start_port} is in use. Using port {port} instead.")
+    else:
+        print(f"✅ Using requested port {port}")
     
     # Run the app
-    print(f"Starting Flask app on port {port}")
-    app.run(debug=os.environ.get('FLASK_ENV') == 'development', host='0.0.0.0', port=port)
+    print(f"🚀 Starting Flask app on port {port}")
+    print(f"🌐 Access your app at: http://localhost:{port}")
+    print(f"📱 Mobile-friendly portfolio system ready!")
+    print("=" * 50)
+    
+    try:
+        app.run(debug=os.environ.get('FLASK_ENV') == 'development', host='0.0.0.0', port=port)
+    except KeyboardInterrupt:
+        print("\n👋 Shutting down Flask app...")
+    except Exception as e:
+        print(f"❌ Error starting Flask app: {e}")
+        print("💡 Try using a different port range or check for conflicts.")
